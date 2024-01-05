@@ -1,5 +1,4 @@
 package com.example.oussama;
-
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -20,23 +19,30 @@ import java.net.URL;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.Objects;
+
 import java.util.ResourceBundle;
 
 public class LoginController implements Initializable {
 
     @FXML
     private Button cancelButton;
+
     @FXML
     private Label loginMessageLabel;
+
     @FXML
     private ImageView brandingImageView;
+
     @FXML
     private ImageView lockImageView;
+
     @FXML
     private TextField usernameTextField;
+
     @FXML
     private PasswordField enterPasswordField;
+
+    private Connection connection = null;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -65,18 +71,18 @@ public class LoginController implements Initializable {
 
     public void validateLogin() {
         DatabaseConnection connectNow = new DatabaseConnection();
-        Connection connectDB = connectNow.getConnection();
+        connection = connectNow.getConnection();
 
         String verifyLogin = "SELECT count(1) FROM useraccount WHERE username = '" +
                 usernameTextField.getText() + "' AND password = '" + enterPasswordField.getText() + "'";
 
         try {
-            Statement statement = connectDB.createStatement();
+            Statement statement = connection.createStatement();
             ResultSet queryResult = statement.executeQuery(verifyLogin);
 
             while (queryResult.next()) {
                 if (queryResult.getInt(1) == 1) {
-                    // Successful login
+
                     loginMessageLabel.setText("Login successful!");
                     openMainForm();
                 } else {
@@ -87,11 +93,17 @@ public class LoginController implements Initializable {
             e.printStackTrace();
         }
     }
+
     public void openMainForm() {
         try {
-            Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/com/example/oussama/register.fxml")));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/oussama/register.fxml"));
+            Parent root = loader.load();
+
+            RegisterController registerController = loader.getController();
+            registerController.setConnection(connection);  // Pass the connection here
+
             Stage registerStage = new Stage(StageStyle.UNDECORATED);
-            Scene scene = new Scene(root, 600  , 500);
+            Scene scene = new Scene(root, 600, 500);
             registerStage.setScene(scene);
             registerStage.show();
 
@@ -103,6 +115,4 @@ public class LoginController implements Initializable {
             System.out.println("Error loading register.fxml: " + e.getMessage());
         }
     }
-
-
 }

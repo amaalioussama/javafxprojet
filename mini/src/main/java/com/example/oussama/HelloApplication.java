@@ -14,10 +14,10 @@ public class HelloApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
 
-        Parent root = FXMLLoader.load(getClass().getResource("/com/example/oussama/login.fxml"));
-        stage.initStyle(StageStyle.UNDECORATED);
-        Scene scene = new Scene(root,520, 400);
-        stage.setScene(scene);
+       Parent root = FXMLLoader.load(getClass().getResource("/com/example/oussama/login.fxml"));
+        stage.initStyle(StageStyle.DECORATED);
+      Scene scene = new Scene(root,530, 400);
+       stage.setScene(scene);
         stage.show();
     }
 

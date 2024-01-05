@@ -14,50 +14,62 @@
    <children>
       <AnchorPane layoutY="2.0" prefHeight="110.0" prefWidth="604.0" style="-fx-background-color: white;">
          <children>
-            <ImageView fx:id="logoView" fitHeight="100.0" fitWidth="100.0" layoutX="86.0" layoutY="10.0" pickOnBounds="true" preserveRatio="true">
+            <ImageView fx:id="logoView" fitHeight="100.0" fitWidth="100.0" layoutX="14.0" layoutY="5.0" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@images/logo.png" />
                </image>
             </ImageView>
-            <Label layoutX="221.0" layoutY="47.0" text="Employee registration">
+            <Label layoutX="182.0" layoutY="42.0" text="Employee registration">
                <font>
                   <Font name="System Bold" size="18.0" />
                </font>
             </Label>
-      
-            <Button fx:id="closeButton" layoutX="494.0" layoutY="10.0" mnemonicParsing="false" onAction="#closeButtonOnAction" prefHeight="0.0" prefWidth="58.0" style="-fx-background-color: white;" text="Close">
+
+            <Button fx:id="closeButton" layoutX="546.0" layoutY="5.0" mnemonicParsing="false" onAction="#closeButtonOnAction" prefHeight="0.0" prefWidth="58.0" style="-fx-background-color: white;" text="Close">
                <font>
                   <Font name="System Bold" size="13.0" />
                </font>
             </Button>
          </children>
       </AnchorPane>
-      <Label layoutX="77.0" layoutY="114.0" text="First Name">
+      <Label layoutX="22.0" layoutY="108.0" text="First Name">
          <font>
             <Font size="13.0" />
          </font>
       </Label>
-      <TextField fx:id="fristename" layoutX="92.0" layoutY="142.0" prefHeight="25.0" prefWidth="133.0" promptText="first name" />
-      <Label layoutX="78.0" layoutY="170.0" text="Last Name">
+      <TextField fx:id="fristename" layoutX="31.0" layoutY="127.0" prefHeight="25.0" prefWidth="133.0" promptText="first name" />
+      <Label layoutX="23.0" layoutY="163.0" text="Last Name">
          <font>
             <Font size="13.0" />
          </font>
       </Label>
-      <TextField fx:id="lastename" layoutX="92.0" layoutY="204.0" prefHeight="25.0" prefWidth="133.0" promptText="last name" />
-      <Label layoutX="68.0" layoutY="240.0" text="Number ID">
+      <TextField fx:id="lastename" layoutX="34.0" layoutY="182.0" prefHeight="25.0" prefWidth="133.0" promptText="last name" />
+      <Label layoutX="31.0" layoutY="220.0" text="Number ID">
          <font>
             <Font size="13.0" />
          </font>
       </Label>
-      <TextField fx:id="numberId" layoutX="92.0" layoutY="267.0" prefHeight="25.0" prefWidth="133.0" promptText="number ID" />
-
-      <Button fx:id="registerButton" layoutX="97.0" layoutY="299.0" mnemonicParsing="false" onAction="#registerButtonOnAction" prefHeight="27.0" prefWidth="85.0" style="-fx-background-color: #3559E0;" text="add" textFill="WHITE">
+      <TextField fx:id="numberId" layoutX="34.0" layoutY="242.0" prefHeight="25.0" prefWidth="133.0" promptText="number ID" />
+      <Button fx:id="updateButton" layoutX="219.0" layoutY="169.0" mnemonicParsing="false" onAction="#updateButtonOnAction" prefHeight="27.0" prefWidth="72.0" style="-fx-background-color: #3559E0;" text="update" textFill="WHITE">
          <font>
             <Font name="System Bold" size="13.0" />
          </font>
       </Button>
-      <TextField fx:id="searchTextField" layoutX="307.0" layoutY="204.0" prefHeight="25.0" prefWidth="187.0" promptText="Search" />
-      <Button fx:id="delete" layoutX="358.0" layoutY="254.0" mnemonicParsing="false" onAction="#deleteButtonOnAction" prefHeight="27.0" prefWidth="85.0" style="-fx-background-color: #3559E0;" text="delete" textFill="WHITE">
+      <Button fx:id="saveChangesButton" layoutX="249.0" layoutY="216.0" mnemonicParsing="false" onAction="#saveChangesButtonOnAction" prefHeight="27.0" prefWidth="106.0" style="-fx-background-color: #3559E0;" text="save changes" textFill="WHITE">
+         <font>
+            <Font name="System Bold" size="13.0" />
+         </font>
+      </Button>
+
+
+
+      <Button fx:id="registerButton" layoutX="58.0" layoutY="290.0" mnemonicParsing="false" onAction="#registerButtonOnAction" prefHeight="27.0" prefWidth="85.0" style="-fx-background-color: #3559E0;" text="add" textFill="WHITE">
+         <font>
+            <Font name="System Bold" size="13.0" />
+         </font>
+      </Button>
+      <TextField fx:id="searchTextField" layoutX="214.0" layoutY="127.0" prefHeight="25.0" prefWidth="187.0" promptText="Search" />
+      <Button fx:id="delete" layoutX="332.0" layoutY="169.0" mnemonicParsing="false" onAction="#deleteButtonOnAction" prefHeight="27.0" prefWidth="72.0" style="-fx-background-color: #3559E0;" text="delete" textFill="WHITE">
          <font>
             <Font name="System Bold" size="13.0" />
          </font>
@@ -69,14 +81,13 @@
          </font>
       </Label>
 
-      <TableView fx:id="tableData" layoutX="68.0" layoutY="344.0" prefHeight="155.0" prefWidth="526.0">
+      <TableView fx:id="tableData" layoutY="344.0" prefHeight="155.0" prefWidth="604.0">
          <columns>
             <TableColumn fx:id="lastNameColumn" prefWidth="173.0" text="Last Name" />
-            <TableColumn fx:id="numberIdColumn" prefWidth="197.0" text="Number ID" />
-            <TableColumn fx:id="firstNameColumn" prefWidth="221.0" text="First Name" />
+            <TableColumn fx:id="numberIdColumn" prefWidth="217.0" text="Number ID" />
+            <TableColumn fx:id="firstNameColumn" prefWidth="201.0" text="First Name" />
          </columns>
       </TableView>
-      <Label fx:id="searchLabel" layoutX="308.0" layoutY="172.0" text="Search" />
 
    </children>
 </AnchorPane>

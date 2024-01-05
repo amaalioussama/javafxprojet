@@ -1,29 +1,23 @@
 package com.example.oussama;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 
 public class DatabaseConnection {
-
-    private Connection databaseLink;
+    private static final String JDBC_URL = "jdbc:mysql://localhost:3306/miniprojet";
+    private static final String USERNAME = "root";
+    private static final String PASSWORD = "";
 
     public Connection getConnection() {
-        String databaseName = "miniprojet";
-        String databaseUser = "root";
-        String databasePassword = "";
-        String url = "jdbc:mysql://localhost/" + databaseName;
-
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            databaseLink = DriverManager.getConnection(url, databaseUser, databasePassword);
-            System.out.println("Connected to the database");
-        } catch (ClassNotFoundException e) {
-            System.err.println("JDBC Driver not found: " + e.getMessage());
-        } catch (Exception e) {
-            System.err.println("Error connecting to the database: " + e.getMessage());
+            Connection connection = DriverManager.getConnection(JDBC_URL, USERNAME, PASSWORD);
+            System.out.println("Connection successful!");
+            return connection;
+        } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
+            System.err.println("Failed to establish connection.");
+            return null;
         }
-
-        return databaseLink;
     }
 }

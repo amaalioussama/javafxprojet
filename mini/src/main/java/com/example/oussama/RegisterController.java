@@ -1,11 +1,7 @@
 package com.example.oussama;
 
-import java.util.ArrayList;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.FilteredList;
-import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -15,12 +11,21 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.net.URL;
-import java.sql.*;
+import java.sql.Connection;
+
+import java.util.ArrayList;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 public class RegisterController implements Initializable {
+
+
+
+    @FXML
+    private Button updateButton;
+
+    @FXML
+    private Button registerButton;
 
     @FXML
     private Button closeButton;
@@ -38,9 +43,6 @@ public class RegisterController implements Initializable {
     private TextField numberId;
 
     @FXML
-    private TextField searchTextField;
-
-    @FXML
     private TableView<Person> tableData;
 
     @FXML
@@ -51,65 +53,93 @@ public class RegisterController implements Initializable {
 
     @FXML
     private TableColumn<Person, String> numberIdColumn;
+
     private ObservableList<Person> personObservableList = FXCollections.observableArrayList();
-
-
+    //special type of list that allows listeners to track changes when elements are added, removed, or modified.
     private ArrayList<Person> personList = new ArrayList<>();
 
     private Connection connection = null;
-    private PreparedStatement preparedStatement = null;
+    private PersonDAO personDAO;
+    public void setConnection(Connection connection) {
+        this.connection = connection;
+    }
+
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         DatabaseConnection connectNow = new DatabaseConnection();
-        connection = connectNow.getConnection();
+        this.connection = connectNow.getConnection();
+        updateButton.setOnAction(this::updateButtonOnAction);
 
-        String persondata = "SELECT firstname, lastname, numbrerID FROM miniprojet.employee";
+        firstNameColumn.setCellValueFactory(new PropertyValueFactory<>("firstname"));
+        lastNameColumn.setCellValueFactory(new PropertyValueFactory<>("lastname"));
+        numberIdColumn.setCellValueFactory(new PropertyValueFactory<>("numberID"));
+        //assosiation des collums woth Person class properties.
 
-        try {
-            Statement statement = connection.createStatement();
-            ResultSet queryOutput = statement.executeQuery(persondata);
+        personDAO = new PersonDAOImpl(connection); //Creates an instance of the PersonDAOImpl
 
-            while (queryOutput.next()) {
-                String queryFirstname = queryOutput.getString("firstname");
-                String queryLastname = queryOutput.getString("lastname");
-                String queryNumberId = queryOutput.getString("numbrerID");
+        personList.addAll(personDAO.getAllPersons());
+        personObservableList.addAll(personList);
+        tableData.setItems(personObservableList);
+        //display the data from the personObservableList
+    }
+    @FXML
+    public void updateButtonOnAction(ActionEvent event) {
+        Person selectedPerson = tableData.getSelectionModel().getSelectedItem();
 
-                personList.add(new Person(queryFirstname, queryLastname, queryNumberId));
-            }
+        if (selectedPerson != null) {
 
-            firstNameColumn.setCellValueFactory(new PropertyValueFactory<>("firstname"));
-            lastNameColumn.setCellValueFactory(new PropertyValueFactory<>("lastname"));
-            numberIdColumn.setCellValueFactory(new PropertyValueFactory<>("numberID"));
+            fristename.setText(selectedPerson.getFirstname());
+            lastename.setText(selectedPerson.getLastname());
+            numberId.setText(selectedPerson.getNumberID());
 
-            tableData.getItems().addAll(personList);
+            // Disable the register button while updating
+            registerButton.setDisable(true);
 
-            FilteredList<Person> filteredList = new FilteredList<>(FXCollections.observableArrayList(personObservableList), b -> true);
-
-            searchTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-                filteredList.setPredicate(person -> {
-                    if (newValue.isEmpty() || newValue.isBlank() || newValue == null) {
-                        return true;
-                    }
-
-                    String searchKeyword = newValue.toLowerCase();
-
-                    if (person.getFirstname().toLowerCase().contains(searchKeyword)) {
-                        return true;
-                    } else if (person.getLastname().toLowerCase().contains(searchKeyword)) {
-                        return true;
-                    } else return person.getNumberID().toLowerCase().contains(searchKeyword);
-                });
-            });
-
-            SortedList<Person> sortedList = new SortedList<>(filteredList);
-            sortedList.comparatorProperty().bind(tableData.comparatorProperty());
-            tableData.setItems(sortedList);
-
-        } catch (SQLException e) {
-            Logger.getLogger(RegisterController.class.getName()).log(Level.SEVERE, null, e);
+            // Enable the update button
+            updateButton.setDisable(false);
+        } else {
+            messageRegistration.setTextFill(Color.TOMATO);
+            messageRegistration.setText("Select a person to update");
         }
     }
+
+    @FXML
+    public void saveChangesButtonOnAction(ActionEvent event) {
+        Person selectedPerson = tableData.getSelectionModel().getSelectedItem();
+
+        if (selectedPerson != null) {
+
+            String updatedFirstname = fristename.getText();
+            String updatedLastname = lastename.getText();
+            String updatedNumberId = numberId.getText();
+
+
+            selectedPerson.setFirstname(updatedFirstname);
+            selectedPerson.setLastname(updatedLastname);
+            selectedPerson.setNumberID(updatedNumberId);
+            // Update the person in the database
+            personDAO.updatePerson(selectedPerson);
+            // Enable the register button
+            registerButton.setDisable(false);
+
+            fristename.clear();
+            lastename.clear();
+            numberId.clear();
+
+            // Refresh the table
+            refreshTable();
+
+            // Display a success message
+            messageRegistration.setTextFill(Color.GREEN);
+            messageRegistration.setText("User information has been updated successfully!");
+        } else {
+            messageRegistration.setTextFill(Color.TOMATO);
+            messageRegistration.setText("Select a person to update");
+        }
+    }
+
+
 
     @FXML
     public void registerButtonOnAction(ActionEvent event) {
@@ -117,7 +147,17 @@ public class RegisterController implements Initializable {
             messageRegistration.setTextFill(Color.TOMATO);
             messageRegistration.setText("Enter all details");
         } else {
-            registerUser();
+            Person newPerson = new Person(fristename.getText(), lastename.getText(), numberId.getText());
+            personDAO.addPerson(newPerson);
+
+            messageRegistration.setTextFill(Color.GREEN);
+            messageRegistration.setText("User has been registered successfully!");
+
+            refreshTable();
+
+            fristename.clear();
+            lastename.clear();
+            numberId.clear();
         }
     }
 
@@ -126,112 +166,32 @@ public class RegisterController implements Initializable {
         Person selectedPerson = tableData.getSelectionModel().getSelectedItem();
 
         if (selectedPerson != null) {
-            deletePerson(selectedPerson);
+            personDAO.deletePerson(selectedPerson);
+
+            messageRegistration.setTextFill(Color.GREEN);
+            messageRegistration.setText("User has been deleted successfully!");
+
+            refreshTable();
         } else {
-            showAlert("No person selected", "Please select a person to delete.");
-        }
-    }
-
-    @FXML
-    public void closeButtonOnAction(ActionEvent event) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO);
-        alert.setHeaderText("Are you sure you want to quit?");
-        alert.showAndWait();
-
-        if (alert.getResult() == ButtonType.YES) {
-            Stage stage = (Stage) closeButton.getScene().getWindow();
-            stage.close();
-            Platform.exit();
-        } else {
-            alert.close();
-        }
-    }
-
-    public void registerUser() {
-        DatabaseConnection connectNow = new DatabaseConnection();
-        connection = connectNow.getConnection();
-
-        String firstname = fristename.getText();
-        String lastname = lastename.getText();
-        String numberIdValue = numberId.getText();
-
-        String insertFields = "INSERT INTO miniprojet.employee (firstname, lastname, numbrerID) VALUES (?, ?, ?)";
-
-        try {
-            preparedStatement = connection.prepareStatement(insertFields);
-            preparedStatement.setString(1, firstname);
-            preparedStatement.setString(2, lastname);
-            preparedStatement.setString(3, numberIdValue);
-
-            int affectedRows = preparedStatement.executeUpdate();
-
-            if (affectedRows > 0) {
-                messageRegistration.setTextFill(Color.GREEN);
-                messageRegistration.setText("User registered successfully!");
-                refreshTable();
-            } else {
-                messageRegistration.setTextFill(Color.TOMATO);
-                messageRegistration.setText("User registration failed.");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
             messageRegistration.setTextFill(Color.TOMATO);
-            messageRegistration.setText("Error: " + e.getMessage());
-        }
-    }
-
-    private void deletePerson(Person person) {
-        try {
-            String query = "DELETE FROM miniprojet.employee WHERE numbrerID = ?";
-            preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setString(1, person.getNumberID());
-
-            int affectedRows = preparedStatement.executeUpdate();
-
-            if (affectedRows > 0) {
-                showMessage("Person deleted successfully!", Color.GREEN);
-                refreshTable();
-            } else {
-                showMessage("Failed to delete the person.", Color.TOMATO);
-            }
-        } catch (SQLException e) {
-            showMessage("Error: " + e.getMessage(), Color.TOMATO);
+            messageRegistration.setText("Select a person ");
         }
     }
 
     @FXML
+    private void closeButtonOnAction(ActionEvent event) {
+        Stage stage = (Stage) closeButton.getScene().getWindow();
+        stage.close();
+    }
+
     private void refreshTable() {
-        try {
-            personList.clear();
 
-            String query = "SELECT * FROM miniprojet.employee";
-            preparedStatement = connection.prepareStatement(query);
-            ResultSet resultSet = preparedStatement.executeQuery();
+        personList.clear();
+        personList.addAll(personDAO.getAllPersons());
 
-            while (resultSet.next()) {
-                personList.add(new Person(
-                        resultSet.getString("firstname"),
-                        resultSet.getString("lastname"),
-                        resultSet.getString("numbrerID")));
-            }
+        personObservableList.clear();
+        personObservableList.addAll(personList); // li ghatban
 
-            tableData.getItems().clear();
-            tableData.getItems().addAll(personList);
-        } catch (SQLException ex) {
-            Logger.getLogger(RegisterController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    private void showMessage(String text, Color color) {
-        messageRegistration.setTextFill(color);
-        messageRegistration.setText(text);
-    }
-
-    private void showAlert(String title, String contentText) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(contentText);
-        alert.showAndWait();
+        tableData.setItems(personObservableList);// tban
     }
 }
